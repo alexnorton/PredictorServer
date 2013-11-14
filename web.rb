@@ -1,5 +1,11 @@
 require 'sinatra'
 
 get '/' do
-	"<h1>Predictor</h1>"
+	"{}"
+end
+
+post '/' do
+	print params["data"]
+	File.open("#{Time.now.to_i}.csv", 'w') {|f| f.write(params["data"])}
+	"{}"
 end

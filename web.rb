@@ -6,32 +6,20 @@ require './model.rb'
 
 configure do
 	ActiveRecord::Base.establish_connection(
-		:adapter => "mysql2",
-		:host => "127.0.0.1",
-		:username => "root",
-		:password => "",
-		:database => "predictor"
+		:adapter => 'mysql2',
+		:host => '127.0.0.1',
+		:username => 'root',
+		:password => '',
+		:database => 'predictor'
 	)
 end
 
-get '/' do
-	"{}"
-end
-
-get '/users' do
+get '/users.json' do
 	User.all.to_json
 end
 
 get '/users/new' do
 	User.create(name: params[:name]).to_json
-end
-
-post '/' do
-	print params["data"]
-	File.open("#{Time.now.to_i}.csv", 'w') do |f|
-		f.write(params["data"])
-	end
-	"{}"
 end
 
 get '/trajectories.json' do
@@ -45,17 +33,17 @@ get '/trajectories/:id.json' do
 
 	trajectory = Trajectory.find(params[:id])
 
-	{"type" => "LineString", "coordinates" => trajectory.points.map{ |point| [point.latitude, point.longitude]}}.to_json
+    {:type => 'LineString', :coordinates => trajectory.points.map{ |point| [point.latitude, point.longitude] }}.to_json
 end
 
 post '/trajectories/new.json' do
 	content_type :json
 
-	user = User.find_by name: "Upload"
+	user = User.find_by name: 'Upload'
 
 	trajectory = Trajectory.create(user: user, upload_date: Time.now)
 
-	CSV.parse(params["data"]).each do |row|
+	CSV.parse(params['data']).each do |row|
 		Point.create(trajectory: trajectory, longitude: row[2].to_f, latitude: row[1].to_f, date: Time.at(row[0].to_i))
 	end
 

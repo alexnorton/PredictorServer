@@ -1,0 +1,22 @@
+<ul>
+
+</ul>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Name</th>
+      <th>Trajectories</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% User.all.each do |user| %>
+      <tr>
+        <td><%= user.id %></td>
+        <td><a href="/users/<%= user.id %>"><%= user.name %></a></td>
+        <td><%= user.trajectories.count %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

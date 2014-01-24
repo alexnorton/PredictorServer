@@ -1,17 +1,9 @@
 require 'CSV'
-require 'active_record'
-require 'activerecord-import'
 require 'ruby-progressbar'
 require 'nokogiri'
-require_relative 'model'
-
-ActiveRecord::Base.establish_connection(
-	:adapter => "mysql2",
-	:host => "127.0.0.1",
-	:username => "root",
-	:password => "",
-	:database => "predictor"
-)
+require 'active_record'
+require 'activerecord-import'
+require_relative '../models/init'
 
 def import_file(file)
   trajectory = Trajectory.create(user: @user, upload_date: Time.now)

@@ -1,17 +1,33 @@
 require 'RGeo'
 
 class StayPointDetector
+  @queue = :stay_points
   @spherical_factory
 
   def initialize
     @spherical_factory = ::RGeo::Geographic.spherical_factory
   end
 
+  def self.perform(trajectory_id, distance_threshold, time_threshold)
+
+    distance_threshold = distance_threshold.to_i
+    time_threshold = time_threshold.to_i
+
+    trajectory = Trajectory.find(trajectory_id)
+    stay_point_set = StayPointSet.create(trajectory: trajectory, distance_threshold: distance_threshold, time_threshold: time_threshold)
+    stay_points = self.new.detect(trajectory, distance_threshold, time_threshold)
+    #stay_point_set.stay_points = stay_points
+    stay_points.each do |stay_point|
+      stay_point.stay_point_set = stay_point_set
+      stay_point.save
+    end
+  end
+
   def detect(trajectory, distance_threshold, time_threshold)
-    trajectory_points = trajectory.points.map {|point| { \
-        :point => @spherical_factory.point(point.longitude, point.latitude), \
-			  :datetime => point.date.to_datetime \
-			} \
+    trajectory_points = trajectory.points.map {|point| {
+        :point => @spherical_factory.point(point.longitude, point.latitude),
+			  :datetime => point.date.to_datetime
+			}
     }
 
     stay_points = Array.new
@@ -20,7 +36,7 @@ class StayPointDetector
 
     trajectory_points.each_with_index do |point1, i|
 
-      if(!points.include?(point1))
+      unless points.include?(point1)
         points = Array.new
         stay_point = false
 
@@ -32,7 +48,7 @@ class StayPointDetector
           points.push(point2)
         end
 
-        if stay_point == true
+        if stay_point
           longitude = points.inject(0){|sum, point| sum + point[:point].x } / points.size
           latitude = points.inject(0){|sum, point| sum + point[:point].y } / points.size
 

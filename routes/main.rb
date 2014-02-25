@@ -1,5 +1,5 @@
 class PredictorServer < Sinatra::Base
   get '/' do
-    erb 'Hello!'
+    erb ''
   end
 end

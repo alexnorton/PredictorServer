@@ -1,7 +1,7 @@
 require 'RGeo'
 
 class StayPointDetector
-  @queue = :stay_points
+  @queue = :stay_points_detection
   @spherical_factory
 
   def initialize
@@ -9,7 +9,6 @@ class StayPointDetector
   end
 
   def self.perform(trajectory_id, distance_threshold, time_threshold)
-
     distance_threshold = distance_threshold.to_i
     time_threshold = time_threshold.to_i
 

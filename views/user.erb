@@ -46,6 +46,23 @@
                 map.fitBounds(stayPointLayer.getBounds());
             });
 
+            var clusterLayer;
+
+            $.getJSON("/users/<%= @user.id %>/clusters.json", function(data) {
+                clusterLayer = L.geoJson(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var circle = L.circle(latlng, 1000, {
+                            color: 'blue',
+                            fillColor: '#00f',
+                            fillOpacity: 0.5
+                        });
+
+                        return circle;
+                    }
+                })
+
+                clusterLayer.addTo(map);
+            });
 
         });
 

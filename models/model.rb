@@ -2,20 +2,19 @@ require 'active_record'
 
 class User < ActiveRecord::Base
 	has_many :trajectories
+  has_many :stay_points, :through => :trajectories
+  has_many :stay_point_sets, :through => :trajectories
+  has_many :clusters
 
-  def stay_points(distance_threshold, time_threshold)
-    self.trajectories.inject([]) do |result, trajectory|
-      stay_point_sets = trajectory.try(:stay_point_sets).find_by(distance_threshold: distance_threshold, time_threshold: time_threshold)
-      if stay_point_sets
-        stay_points = stay_point_sets.try(:stay_points)
-        if stay_points
-          result.concat stay_points
-        else
-          []
-        end
-      else
-        []
-      end
+  def stay_point_set_groups
+    self.stay_point_sets.group(:distance_threshold, :time_threshold).map do |stay_point_set|
+      count = self.stay_points.where(stay_point_sets: {distance_threshold: stay_point_set.distance_threshold, time_threshold: stay_point_set.time_threshold}).count
+
+      {
+        :distance_threshold => stay_point_set.distance_threshold,
+        :time_threshold => stay_point_set.time_threshold,
+        :count => count
+      }
     end
   end
 end
@@ -23,6 +22,7 @@ end
 class Trajectory < ActiveRecord::Base
 	belongs_to :user
 	has_many :points
+  has_many :stay_points, :through => :stay_point_sets
   has_many :stay_point_sets
 
   def enqueue_stay_point_detection(distance_threshold, time_threshold)
@@ -44,10 +44,6 @@ class StayPointSet < ActiveRecord::Base
   has_many :stay_points
 end
 
-class StayPointCluster
-
-end
-
-class Traversal
-
+class Cluster < ActiveRecord::Base
+  belongs_to :user
 end

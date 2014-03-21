@@ -3,6 +3,9 @@ require 'ruby-progressbar'
 require 'nokogiri'
 require 'active_record'
 require 'activerecord-import'
+require 'resque'
+require_relative '../lib/stay_point_detector'
+require_relative '../lib/python_clustering'
 require_relative '../models/init'
 
 def import_file(file)
@@ -67,3 +70,6 @@ if File.directory?(ARGV[0])
 elsif File.file?(ARGV[0])
   import_file ARGV[0]
 end
+
+@user.enqueue_stay_point_detection(200, 300)
+@user.enqueue_clustering()

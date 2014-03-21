@@ -9,6 +9,7 @@ require_relative 'helpers/init'
 require_relative 'models/init'
 require_relative 'routes/init'
 require_relative 'lib/stay_point_detector'
+require_relative 'lib/python_clustering'
 
 class PredictorServer < Sinatra::Base
   helpers Sinatra::ContentFor

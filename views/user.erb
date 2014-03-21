@@ -15,11 +15,16 @@
                 "MapQuest Open": L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpeg', {subdomains: '1234'})
             }
 
+            var stayPointLayer;
+            var clusterLayer;
+            var edgeLayer;
+
+
+
             var map = L.map('map_canvas', {layers: layers.MapBox});
 
-            L.control.layers(layers).addTo(map);
 
-            var stayPointLayer;
+            var control = L.control.layers(layers).addTo(map);
 
             $.getJSON("/users/<%= @user.id %>/staypoints.json", function(data) {
                 stayPointLayer = L.geoJson(data, {
@@ -40,18 +45,19 @@
 
                         return circle;
                     }
+
                 })
 
                 stayPointLayer.addTo(map);
                 map.fitBounds(stayPointLayer.getBounds());
-            });
+                control.addOverlay(stayPointLayer, "Stay Points");
 
-            var clusterLayer;
+            });
 
             $.getJSON("/users/<%= @user.id %>/clusters.json", function(data) {
                 clusterLayer = L.geoJson(data, {
                     pointToLayer: function (feature, latlng) {
-                        var circle = L.circle(latlng, 1000, {
+                        var circle = L.circle(latlng, 2000, {
                             color: 'blue',
                             fillColor: '#00f',
                             fillOpacity: 0.5
@@ -62,7 +68,28 @@
                 })
 
                 clusterLayer.addTo(map);
+                control.addOverlay(clusterLayer, "Clusters");
             });
+
+            $.getJSON("/users/<%= @user.id %>/edges.json", function(data) {
+                edgeLayer = L.geoJson(data, {
+                    onEachFeature: function(feature, layer) {
+                        layer.bindPopup(
+                            feature.properties.count + "/" + feature.properties.total
+                        );
+                    },
+                    style: function(feature) {
+                        return {
+                            opacity: feature.geometry.properties.count / feature.geometry.properties.total
+                        };
+                    }
+                });
+                edgeLayer.addTo(map);
+                control.addOverlay(edgeLayer, "Edges");
+            });
+
+
+
 
         });
 
@@ -95,6 +122,7 @@
   </tr>
   </thead>
   <tbody>
+  <h3>Trajectories</h3>
   <% @user.trajectories.each do |trajectory| %>
       <tr>
         <td><a href="/trajectories/<%= trajectory.id %>"><%= trajectory.id %></a></td>

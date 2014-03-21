@@ -1,0 +1,20 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>Distance</th>
+      <th>Radius</th>
+      <th>Stay Points</th>
+      <th>Complete</th>
+    </tr>
+   </thead>
+  <tbody>
+  <% @groups.each do |group| %>
+  <tr>
+    <td><%= group[:distance_threshold] %></td>
+    <td><%= group[:time_threshold] %></td>
+    <td><%= group[:count] %></td>
+    <td></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -1,7 +1,7 @@
 require 'RGeo'
 
 class StayPointDetector
-  @queue = :stay_points_detection
+  @queue = :queue
   @spherical_factory
 
   def initialize

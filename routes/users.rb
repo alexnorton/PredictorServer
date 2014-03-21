@@ -51,6 +51,24 @@ class PredictorServer < Sinatra::Base
     }}.to_json
   end
 
+  get '/users/:id/edges.json' do
+    content_type :json
+
+    edges = Edge.select('from_id, to_id, count(*) as count').where(user_id: params[:id]).group('from_id, to_id').includes(:from, :to)
+
+    edges.map{|edge| {
+        :type => 'LineString',
+        :coordinates => [
+            [edge.from.longitude, edge.from.latitude],
+            [edge.to.longitude, edge.to.latitude]
+        ],
+        :properties => {
+            :count => edge.count,
+            :total => Edge.where(from: edge.from).count
+        }
+    }}.to_json
+  end
+
   get '/users/:id' do
     @user = User.find(params[:id])
     erb :user
